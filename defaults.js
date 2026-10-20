@@ -1,0 +1,181 @@
+// Your starting configuration. Change it here, or use Customize in the page.
+export const defaults = {
+  version: 1,
+  name: "Swan",
+  theme: "dark",
+  accent: "sage",
+  hour12: true,
+  openInNewTab: true,
+  engine: "kagi",
+  showClock: true,
+  showGreeting: true,
+  showSearch: true,
+  showFavorites: true,
+  showCollections: true,
+  showSeconds: false,
+  favorites: [
+    {
+      id: "9dff0444-5f57-4ca7-a1d1-dfeea0cc8f01",
+      name: "Github",
+      url: "https://github.com/",
+      icon: "github",
+    },
+    {
+      id: "8859ae8b-20a5-422f-9618-840e9e120c73",
+      name: "Mail",
+      url: "https://mail.protonmail.com/",
+      icon: "mail",
+    },
+    {
+      id: "59041d80-bd85-44a0-843b-4b6df9dbff63",
+      name: "Todoist",
+      url: "https://todoist.com",
+      icon: "trello",
+    },
+    {
+      id: "8fcae98d-ba0b-484a-b165-31b080964590",
+      name: "Calendar",
+      url: "https://calendar.google.com/calendar/r",
+      icon: "calendar",
+    },
+    {
+      id: "1eabef0b-1043-4798-8f91-ce04fe875439",
+      name: "Reddit",
+      url: "https://reddit.com",
+      icon: "glasses",
+    },
+    {
+      id: "48f60251-532d-44ef-b069-a7134b28cf24",
+      name: "Youtube",
+      url: "https://youtube.com/",
+      icon: "youtube",
+    },
+  ],
+  extraFavorites: [
+    {
+      id: "e55de01d-7e42-40eb-8725-5d3d1c95a9d3",
+      name: "Apple Music",
+      url: "https://music.apple.com/",
+      icon: "headphones",
+    },
+    {
+      id: "bde679e9-48dc-4326-bb37-f3c33b70eeed",
+      name: "twitter",
+      url: "https://twitter.com/",
+      icon: "twitter",
+    },
+    {
+      id: "e4210024-233a-4af2-9297-ff9283a7d227",
+      name: "bot",
+      url: "https://discord.com/app",
+      icon: "bot",
+    },
+    {
+      id: "ad8ee493-924a-4460-afe8-72db6e8a5191",
+      name: "Amazon",
+      url: "https://amazon.com/",
+      icon: "shopping-bag",
+    },
+    {
+      id: "833659ea-2d83-4505-875d-3a01dbedb0ec",
+      name: "Hashnode",
+      url: "https://hashnode.com/",
+      icon: "pen-tool",
+    },
+    {
+      id: "2eb63c72-26d2-4624-a811-378781edd5ec",
+      name: "Figma",
+      url: "https://figma.com/",
+      icon: "figma",
+    },
+  ],
+  groups: [
+    {
+      id: "3770dae3-eeff-46e6-919a-2185e4b3a566",
+      name: "Social",
+      visible: true,
+      links: [
+        {
+          id: "496005a1-b72e-4ea6-948f-8b7e18471626",
+          name: "Misskey",
+          url: "https://mk.absturztau.be/",
+          icon: "link",
+        },
+        {
+          id: "ac1205f5-e763-482d-b4c0-7d195c03818a",
+          name: "Bluesky",
+          url: "https://bsky.app/",
+          icon: "link",
+        },
+        {
+          id: "b0b317d6-4bcf-470e-800b-d7dd12d2c143",
+          name: "Tumblr",
+          url: "https://www.tumblr.com/",
+          icon: "link",
+        },
+      ],
+    },
+    {
+      id: "7840ca85-fba0-4e0e-af89-25219942f12b",
+      name: "Explore",
+      visible: false,
+      links: [
+        {
+          id: "3c970c08-7d09-4952-af32-98d6c4ef6d27",
+          name: "Spotify",
+          url: "https://www.spotify.com",
+          icon: "link",
+        },
+        {
+          id: "3c41e504-719f-4090-a2b6-fdc1b9cd1ba8",
+          name: "Reddit",
+          url: "https://www.reddit.com",
+          icon: "link",
+        },
+        {
+          id: "1b9d070c-8b97-4eb1-9ec6-627f54f70148",
+          name: "Hashnode",
+          url: "https://www.hashnode.com",
+          icon: "link",
+        },
+        {
+          id: "3480313b-d574-4c71-bb50-8c608394dc5e",
+          name: "Pocket",
+          url: "https://www.pocket.com",
+          icon: "link",
+        },
+      ],
+    },
+    {
+      id: "b4037517-f2c4-4dfe-a081-8343cfaccdad",
+      name: "Development",
+      visible: false,
+      links: [
+        {
+          id: "07351b17-4da7-4692-aa68-8459ad7e95d8",
+          name: "Front",
+          url: "https://www.reddit.com/r/Frontend/",
+          icon: "link",
+        },
+        {
+          id: "f6306264-8c47-46dd-92f7-8e94eecd8a7c",
+          name: "Rust",
+          url: "https://www.reddit.com/r/rust/",
+          icon: "link",
+        },
+        {
+          id: "49ba0570-7c2c-401d-8c47-554ecd9a854c",
+          name: "Go",
+          url: "https://www.reddit.com/r/golang/",
+          icon: "link",
+        },
+        {
+          id: "b6f20c51-f85b-400c-bb59-84bd52751931",
+          name: "Repos",
+          url: "https://github.com/migueravila",
+          icon: "link",
+        },
+      ],
+    },
+  ],
+};

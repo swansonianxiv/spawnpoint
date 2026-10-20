@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-accent="sage">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <meta
+      name="description"
+      content="Spawnpoint. A quiet, personal place to start."
+    />
+    <title>Spawnpoint</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./style.css" />
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Spawnpoint home"
+        ><svg viewBox="0 0 28 28" aria-hidden="true">
+          <path d="M14 2v7m0 10v7M2 14h7m10 0h7" />
+          <rect x="9" y="9" width="10" height="10" rx="2" /></svg
+        ><span>spawnpoint<span class="brand-dot">.</span></span></a
+      >
+      <div class="top-actions">
+        <span class="local-label"><i></i> YOUR SPACE</span
+        ><button id="customize" class="button subtle" type="button">
+          <span data-icon="sliders"></span>Customize
+        </button>
+      </div>
+    </header>
+    <main id="main" class="workspace">
+      <section class="welcome" aria-label="Welcome">
+        <div class="welcome-main">
+          <p id="date" class="eyebrow"></p>
+          <div id="clock-area" class="clock-area">
+            <time id="clock"></time><span id="period" class="period"></span>
+          </div>
+          <h1 id="greeting"></h1>
+        </div>
+      </section>
+      <form id="search-form" class="search" role="search">
+        <span data-icon="search"></span
+        ><input
+          id="search"
+          name="q"
+          type="search"
+          placeholder="Search the web"
+          aria-label="Search the web"
+          autocomplete="off"
+          spellcheck="false"
+        /><span id="engine-label"></span><kbd>/</kbd
+        ><button type="submit" aria-label="Search" class="icon-button">
+          <span data-icon="arrow-right"></span>
+        </button>
+      </form>
+      <section
+        id="favorites-section"
+        class="favorites-section"
+        aria-labelledby="favorites-heading"
+      >
+        <div class="section-heading">
+          <h2 id="favorites-heading">QUICK ACCESS</h2>
+          <button class="text-button" type="button" id="edit-favorites">
+            Edit shortcuts <span aria-hidden="true">↗</span>
+          </button>
+        </div>
+        <nav id="favorites" class="favorites" aria-label="Quick access"></nav>
+      </section>
+      <section
+        id="collections-section"
+        class="collections-section"
+        aria-labelledby="collections-heading"
+      >
+        <div class="section-heading">
+          <h2 id="collections-heading">COLLECTIONS</h2>
+          <button id="add-collection" class="text-button" type="button">
+            Manage collections <span aria-hidden="true">↗</span>
+          </button>
+        </div>
+        <div id="collections" class="collections"></div>
+      </section>
+      <div id="empty-state" class="empty-state" hidden>
+        Your space, at your pace.<br /><button
+          type="button"
+          id="empty-customize"
+          class="text-button"
+        >
+          Choose what appears here ↗
+        </button>
+      </div>
+    </main>
+    <footer class="footer">
+      <span>A little less noise. A little more you.</span
+      ><button type="button" class="text-button" id="help">
+        About Spawnpoint <span aria-hidden="true">↗</span>
+      </button>
+    </footer>
+    <dialog
+      id="settings-dialog"
+      class="settings-dialog"
+      aria-labelledby="settings-title"
+    >
+      <div class="dialog-top">
+        <div>
+          <p class="eyebrow">MAKE YOURSELF AT HOME</p>
+          <h2 id="settings-title">Your Spawnpoint.</h2>
+        </div>
+        <button
+          type="button"
+          class="icon-button close-dialog"
+          aria-label="Close settings"
+        >
+          <span data-icon="x"></span>
+        </button>
+      </div>
+      <div class="tabs" role="tablist" aria-label="Settings">
+        <button
+          type="button"
+          role="tab"
+          aria-controls="panel-general"
+          aria-selected="true"
+          id="tab-general"
+          data-tab="general"
+        >
+          General</button
+        ><button
+          type="button"
+          role="tab"
+          aria-controls="panel-links"
+          aria-selected="false"
+          id="tab-links"
+          tabindex="-1"
+          data-tab="links"
+        >
+          Links</button
+        ><button
+          type="button"
+          role="tab"
+          aria-controls="panel-backup"
+          aria-selected="false"
+          id="tab-backup"
+          tabindex="-1"
+          data-tab="backup"
+        >
+          Backup
+        </button>
+      </div>
+      <div class="settings-body">
+        <section
+          id="panel-general"
+          role="tabpanel"
+          aria-labelledby="tab-general"
+        >
+          <div class="settings-section">
+            <h3>The essentials</h3>
+            <label class="field"
+              >Your name<input
+                id="setting-name"
+                maxlength="60"
+                autocomplete="nickname"
+            /></label>
+            <div class="field-grid">
+              <label class="field"
+                >Appearance<select id="setting-theme" aria-label="Appearance">
+                  <option value="dark">Dark</option>
+                  <option value="light">Light</option>
+                  <option value="system">Match system</option>
+                </select></label
+              ><label class="field"
+                >Search engine<select
+                  id="setting-engine"
+                  aria-label="Search engine"
+                >
+                  <option value="kagi">Kagi</option>
+                  <option value="duckduckgo">DuckDuckGo</option>
+                  <option value="google">Google</option>
+                  <option value="bing">Bing</option>
+                  <option value="brave">Brave</option>
+                </select></label
+              >
+            </div>
+            <label class="field"
+              >Accent<select id="setting-accent" aria-label="Accent">
+                <option value="sage">Sage</option>
+                <option value="lavender">Lavender</option>
+                <option value="sand">Sand</option>
+                <option value="ice">Ice</option>
+              </select></label
+            ><label class="toggle-row"
+              ><span>Use a 12-hour clock</span
+              ><input
+                id="setting-hour12"
+                type="checkbox"
+                role="switch" /></label
+            ><label class="toggle-row"
+              ><span>Show seconds</span
+              ><input
+                id="setting-showSeconds"
+                type="checkbox"
+                role="switch" /></label
+            ><label class="toggle-row"
+              ><span>Open links in a new tab</span
+              ><input id="setting-openInNewTab" type="checkbox" role="switch"
+            /></label>
+          </div>
+          <div class="settings-section">
+            <h3>On your page</h3>
+            <p class="muted small">Keep what’s useful. Hide the rest.</p>
+            <label class="toggle-row"
+              ><span>Clock</span
+              ><input
+                id="setting-showClock"
+                type="checkbox"
+                role="switch" /></label
+            ><label class="toggle-row"
+              ><span>Greeting</span
+              ><input
+                id="setting-showGreeting"
+                type="checkbox"
+                role="switch" /></label
+            ><label class="toggle-row"
+              ><span>Search</span
+              ><input
+                id="setting-showSearch"
+                type="checkbox"
+                role="switch" /></label
+            ><label class="toggle-row"
+              ><span>Quick access</span
+              ><input
+                id="setting-showFavorites"
+                type="checkbox"
+                role="switch" /></label
+            ><label class="toggle-row"
+              ><span>Collections</span
+              ><input
+                id="setting-showCollections"
+                type="checkbox"
+                role="switch"
+            /></label>
+          </div>
+        </section>
+        <section
+          id="panel-links"
+          role="tabpanel"
+          aria-labelledby="tab-links"
+          hidden
+        >
+          <div class="settings-section">
+            <div class="section-heading">
+              <h3>Quick access</h3>
+              <button type="button" id="new-favorite" class="text-button">
+                + Add shortcut
+              </button>
+            </div>
+            <div id="favorite-editor"></div>
+            <details class="extra-links">
+              <summary>More shortcuts from your Bento</summary>
+              <p class="muted small">
+                Add any of your other original shortcuts.
+              </p>
+              <div id="extra-favorites"></div>
+            </details>
+          </div>
+          <div class="settings-section">
+            <div class="section-heading">
+              <h3>Collections</h3>
+              <button type="button" id="new-group" class="text-button">
+                + Add collection
+              </button>
+            </div>
+            <div id="group-editor"></div>
+          </div>
+        </section>
+        <section
+          id="panel-backup"
+          role="tabpanel"
+          aria-labelledby="tab-backup"
+          hidden
+        >
+          <div class="settings-section">
+            <h3>Take your space with you.</h3>
+            <p class="muted">
+              Settings are saved in this browser, on this device. Export a
+              backup to move them to another browser, your own hosted copy, or
+              the extension.
+            </p>
+            <button type="button" id="export" class="button primary">
+              Export settings
+            </button>
+          </div>
+          <div class="settings-section">
+            <h3>Restore a backup</h3>
+            <p class="muted">
+              Choose a Spawnpoint JSON backup. You’ll review it before replacing
+              your current settings.
+            </p>
+            <label class="button file-button"
+              >Choose backup<input
+                id="import"
+                type="file"
+                accept=".json,application/json"
+            /></label>
+            <div id="import-review" hidden>
+              <p id="import-description"></p>
+              <button type="button" id="confirm-import" class="button primary">
+                Replace settings</button
+              ><button type="button" id="cancel-import" class="button">
+                Cancel
+              </button>
+            </div>
+            <p id="import-error" class="error" role="alert"></p>
+          </div>
+          <div class="settings-section">
+            <h3>Start fresh</h3>
+            <p class="muted">
+              Restore your starting links and Spawnpoint defaults.
+            </p>
+            <button type="button" id="reset" class="text-button danger">
+              Reset all settings
+            </button>
+          </div>
+        </section>
+      </div>
+      <div class="settings-footer">
+        <span id="save-status"><i></i> Changes save automatically</span
+        ><button type="button" class="button close-dialog">Done</button>
+      </div>
+    </dialog>
+    <dialog id="edit-dialog" class="edit-dialog" aria-labelledby="edit-title">
+      <form id="edit-form">
+        <div class="dialog-top">
+          <h2 id="edit-title">Edit link</h2>
+          <button
+            type="button"
+            class="icon-button close-edit"
+            aria-label="Close editor"
+          >
+            <span data-icon="x"></span>
+          </button>
+        </div>
+        <div id="link-fields">
+          <label class="field"
+            >Name<input id="edit-name" required maxlength="80" /></label
+          ><label class="field"
+            >URL<input
+              id="edit-url"
+              type="url"
+              placeholder="https://example.com"
+              required
+              maxlength="2000" /></label
+          ><label class="field"
+            >Icon<select id="edit-icon" aria-label="Icon"></select
+          ></label>
+        </div>
+        <p id="edit-error" class="error" role="alert"></p>
+        <div class="edit-actions">
+          <button type="button" class="button close-edit">Cancel</button
+          ><button type="submit" class="button primary">Save</button>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="help-dialog" class="edit-dialog" aria-labelledby="help-title">
+      <div class="dialog-top">
+        <h2 id="help-title">Your starting point.</h2>
+        <button
+          type="button"
+          class="icon-button close-help"
+          aria-label="Close about"
+        >
+          <span data-icon="x"></span>
+        </button>
+      </div>
+      <p>
+        Spawnpoint is a lightweight personal start page, inspired by your Bento
+        setup.
+      </p>
+      <p class="muted">
+        No accounts, trackers, or remote fonts. Your settings stay in this
+        browser. Search queries go to your chosen search engine when you submit
+        them.
+      </p>
+      <p class="muted">
+        Use Customize to change links, colors, and what appears. Export your
+        settings before clearing browser data or moving to another copy.
+      </p>
+      <div class="shortcut-tip">
+        <kbd>/</kbd><span>Focus search</span><kbd>Esc</kbd
+        ><span>Close a dialog</span>
+      </div>
+      <p class="small muted">
+        The clock follows your device’s time and timezone. Weather is reserved
+        for your next widget review.
+      </p>
+    </dialog>
+    <div id="toast" class="toast" role="status"></div>
+    <noscript
+      ><p class="noscript">
+        Enable JavaScript to use Spawnpoint’s clock, links, and editor.
+      </p></noscript
+    >
+  </body>
+</html>

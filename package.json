@@ -1,0 +1,15 @@
+{
+  "name": "spawnpoint",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A quiet, lightweight, editable new-tab page.",
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "test": "node --test",
+    "package": "python3 scripts/package.py"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
