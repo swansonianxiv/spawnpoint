@@ -13,6 +13,7 @@ export const defaults = {
   showFavorites: true,
   showCollections: true,
   showSeconds: false,
+  wallpaper: { enabled: true, dim: 55, blur: 0, position: "center" },
   favorites: [
     {
       id: "9dff0444-5f57-4ca7-a1d1-dfeea0cc8f01",

@@ -6,7 +6,7 @@ import json
 import zipfile
 
 ROOT = Path(__file__).resolve().parent.parent
-RUNTIME = ['index.html', 'style.css', 'app.js', 'data.js', 'defaults.js', 'icons.js', 'favicon.svg']
+RUNTIME = ['index.html', 'style.css', 'app.js', 'data.js', 'defaults.js', 'icons.js', 'wallpaper.js', 'favicon.svg']
 
 def write_zip(destination, files):
     with zipfile.ZipFile(destination, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:

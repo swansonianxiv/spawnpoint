@@ -123,3 +123,30 @@ test("defaults are independent copies", () => {
   a.groups[0].links.pop();
   assert.equal(b.groups[0].links.length, 3);
 });
+
+test("older backups receive wallpaper defaults without losing links", () => {
+  const data = fresh();
+  delete data.wallpaper;
+  const result = validate(data);
+  assert.deepEqual(result.wallpaper, {
+    enabled: true,
+    dim: 55,
+    blur: 0,
+    position: "center",
+  });
+  assert.deepEqual(result.favorites, validate(fresh()).favorites);
+});
+test("wallpaper controls reject invalid ranges and image injection", () => {
+  for (const patch of [
+    { dim: -1 },
+    { dim: 91 },
+    { blur: NaN },
+    { blur: 21 },
+    { enabled: "true" },
+    { position: "url(https://example.com)" },
+  ]) {
+    const data = fresh();
+    Object.assign(data.wallpaper, patch);
+    assert.throws(() => validate(data));
+  }
+});

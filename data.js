@@ -66,6 +66,27 @@ function unique(items, label) {
     throw new Error(`Duplicate ${label} IDs.`);
   return items;
 }
+export function validateWallpaper(value) {
+  // Older version-1 backups did not contain wallpaper controls.
+  if (value === undefined) return clone(defaults.wallpaper);
+  if (!value || typeof value !== "object")
+    throw new Error("Invalid wallpaper settings.");
+  const range = (number, max, label) => {
+    if (!Number.isFinite(number) || number < 0 || number > max)
+      throw new Error(`Invalid wallpaper ${label}.`);
+    return number;
+  };
+  return {
+    enabled: boolean(value.enabled, "wallpaper visibility"),
+    dim: range(value.dim, 90, "dimming"),
+    blur: range(value.blur, 20, "blur"),
+    position: choice(
+      value.position,
+      ["center", "top", "bottom", "left", "right"],
+      "wallpaper position",
+    ),
+  };
+}
 // Strict, versioned validation also runs when loading local browser data.
 export function validate(value) {
   if (!value || value.version !== 1)
@@ -76,6 +97,7 @@ export function validate(value) {
     theme: choice(value.theme, ["dark", "light", "system"], "theme"),
     accent: choice(value.accent, ["sage", "lavender", "sand", "ice"], "accent"),
     engine: choice(value.engine, Object.keys(engines), "search engine"),
+    wallpaper: validateWallpaper(value.wallpaper),
   };
   for (const key of [
     "hour12",

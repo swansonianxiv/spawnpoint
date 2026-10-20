@@ -14,6 +14,10 @@
     <script type="module" src="./app.js"></script>
   </head>
   <body>
+    <div id="wallpaper" class="wallpaper" hidden aria-hidden="true">
+      <img id="wallpaper-image" alt="" />
+      <div class="wallpaper-shade"></div>
+    </div>
     <a class="skip" href="#main">Skip to content</a>
     <header class="topbar">
       <a class="brand" href="./" aria-label="Spawnpoint home"
@@ -125,6 +129,16 @@
           data-tab="links"
         >
           Links</button
+        ><button
+          type="button"
+          role="tab"
+          aria-controls="panel-wallpaper"
+          aria-selected="false"
+          id="tab-wallpaper"
+          data-tab="wallpaper"
+          tabindex="-1"
+        >
+          Wallpaper</button
         ><button
           type="button"
           role="tab"
@@ -262,6 +276,92 @@
             </div>
             <div id="group-editor"></div>
           </div>
+        </section>
+        <section
+          id="panel-wallpaper"
+          role="tabpanel"
+          aria-labelledby="tab-wallpaper"
+          hidden
+        >
+          <div class="settings-section">
+            <h3>Wallpaper</h3>
+            <p class="muted">
+              Choose an image from your device. It stays in this browser and is
+              included in settings backups.
+            </p>
+            <div id="wallpaper-preview" class="wallpaper-preview" hidden>
+              <img id="wallpaper-thumbnail" alt="Current wallpaper" /><span
+                id="wallpaper-name"
+              ></span>
+            </div>
+            <div class="wallpaper-actions">
+              <label class="button file-button"
+                >Choose image<input
+                  id="wallpaper-upload"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  aria-label="Choose wallpaper image" /></label
+              ><button
+                id="wallpaper-remove"
+                type="button"
+                class="button"
+                disabled
+              >
+                Remove
+              </button>
+            </div>
+            <p id="wallpaper-status" class="muted small" role="status">
+              JPG, PNG, or WebP. Up to 20 MB.
+            </p>
+            <p id="wallpaper-error" class="error" role="alert"></p>
+            <label class="toggle-row"
+              ><span>Show wallpaper</span
+              ><input
+                id="wallpaper-enabled"
+                type="checkbox"
+                role="switch"
+                disabled
+            /></label>
+          </div>
+          <fieldset
+            id="wallpaper-controls"
+            class="settings-section wallpaper-controls"
+            disabled
+          >
+            <legend class="visually-hidden">Wallpaper appearance</legend>
+            <label class="range-field" for="wallpaper-dim"
+              ><span>Dimming <output id="wallpaper-dim-value">55%</output></span
+              ><input
+                id="wallpaper-dim"
+                type="range"
+                min="0"
+                max="90"
+                step="1"
+                value="55"
+            /></label>
+            <label class="range-field" for="wallpaper-blur"
+              ><span>Blur <output id="wallpaper-blur-value">0 px</output></span
+              ><input
+                id="wallpaper-blur"
+                type="range"
+                min="0"
+                max="20"
+                step="1"
+                value="0"
+            /></label>
+            <label class="field"
+              >Image position<select
+                id="wallpaper-position"
+                aria-label="Image position"
+              >
+                <option value="center">Center</option>
+                <option value="top">Top</option>
+                <option value="bottom">Bottom</option>
+                <option value="left">Left</option>
+                <option value="right">Right</option>
+              </select></label
+            >
+          </fieldset>
         </section>
         <section
           id="panel-backup"

@@ -11,6 +11,14 @@ import {
   STORAGE_KEY,
 } from "./data.js";
 import { icon, linkIcons } from "./icons.js";
+import {
+  readWallpaper,
+  writeWallpaper,
+  prepareWallpaper,
+  exportWallpaper,
+  importWallpaper,
+  WALLPAPER_SIGNAL,
+} from "./wallpaper.js";
 const $ = (id) => document.getElementById(id);
 let storage;
 try {
@@ -31,6 +39,12 @@ let activeTab = "general",
   editing = null,
   pendingImport = null,
   toastTimer;
+let wallpaperAsset = null,
+  wallpaperURL = null,
+  wallpaperBusy = false,
+  wallpaperRevision = 0,
+  pendingImportAsset;
+const tabs = ["general", "links", "wallpaper", "backup"];
 const media = matchMedia("(prefers-color-scheme: dark)");
 const settingKeys = [
   "name",
@@ -86,6 +100,116 @@ function commit(next, { editor = false } = {}) {
   if (editor) renderEditor();
   return true;
 }
+function renderWallpaper() {
+  const options = state.wallpaper;
+  const active = !!wallpaperAsset && options.enabled;
+  document.documentElement.toggleAttribute("data-wallpaper", active);
+  $("wallpaper").hidden = !active;
+  $("wallpaper").style.setProperty("--wallpaper-dim", options.dim / 100);
+  $("wallpaper").style.setProperty("--wallpaper-blur", options.blur + "px");
+  $("wallpaper-image").style.objectPosition = options.position;
+  $("wallpaper-preview").hidden = !wallpaperAsset;
+  $("wallpaper-name").textContent = wallpaperAsset?.name || "";
+  $("wallpaper-remove").disabled = !wallpaperAsset || wallpaperBusy;
+  $("wallpaper-enabled").disabled = !wallpaperAsset || wallpaperBusy;
+  $("wallpaper-enabled").checked = !!wallpaperAsset && options.enabled;
+  $("wallpaper-controls").disabled = !wallpaperAsset || wallpaperBusy;
+  $("wallpaper-upload").disabled = wallpaperBusy;
+  $("wallpaper-position").value = options.position;
+  for (const key of ["dim", "blur"]) {
+    $("wallpaper-" + key).value = options[key];
+    $("wallpaper-" + key + "-value").textContent =
+      options[key] + (key === "dim" ? "%" : " px");
+  }
+}
+function setWallpaperAsset(asset) {
+  const previous = wallpaperURL;
+  wallpaperAsset = asset || null;
+  wallpaperURL = asset ? URL.createObjectURL(asset.blob) : null;
+  for (const id of ["wallpaper-image", "wallpaper-thumbnail"]) {
+    if (wallpaperURL) $(id).src = wallpaperURL;
+    else $(id).removeAttribute("src");
+  }
+  if (previous) URL.revokeObjectURL(previous);
+  renderWallpaper();
+}
+async function refreshWallpaper() {
+  const revision = ++wallpaperRevision;
+  try {
+    const asset = await readWallpaper();
+    if (revision === wallpaperRevision) setWallpaperAsset(asset);
+  } catch {
+    $("wallpaper-error").textContent =
+      "Image storage is unavailable. The rest of your page still works.";
+  }
+}
+async function saveWallpaperAsset(asset) {
+  await writeWallpaper(asset);
+  $("wallpaper-error").textContent = "";
+  ++wallpaperRevision;
+  setWallpaperAsset(asset);
+  try {
+    storage.setItem(WALLPAPER_SIGNAL, crypto.randomUUID());
+  } catch {
+    /* Image storage can work even when localStorage is unavailable. */
+  }
+}
+$("wallpaper-upload").onchange = async (event) => {
+  const file = event.target.files[0];
+  event.target.value = "";
+  if (!file) return;
+  wallpaperBusy = true;
+  renderWallpaper();
+  $("wallpaper-error").textContent = "";
+  $("wallpaper-status").textContent = "Preparing image…";
+  try {
+    const asset = await prepareWallpaper(file);
+    await saveWallpaperAsset(asset);
+    const next = clone(state);
+    next.wallpaper.enabled = true;
+    commit(next);
+    $("wallpaper-status").textContent = "Saved on this device.";
+  } catch (error) {
+    $("wallpaper-error").textContent = error.message;
+    $("wallpaper-status").textContent = "JPG, PNG, or WebP. Up to 20 MB.";
+  } finally {
+    wallpaperBusy = false;
+    renderWallpaper();
+  }
+};
+$("wallpaper-remove").onclick = async () => {
+  wallpaperBusy = true;
+  renderWallpaper();
+  try {
+    await saveWallpaperAsset(null);
+    $("wallpaper-error").textContent = "";
+    $("wallpaper-status").textContent = "JPG, PNG, or WebP. Up to 20 MB.";
+  } catch (error) {
+    $("wallpaper-error").textContent = error.message;
+  } finally {
+    wallpaperBusy = false;
+    renderWallpaper();
+  }
+};
+for (const key of ["enabled", "position", "dim", "blur"]) {
+  const input = $("wallpaper-" + key);
+  const update = () => {
+    const next = clone(state);
+    next.wallpaper[key] =
+      key === "enabled"
+        ? input.checked
+        : key === "position"
+          ? input.value
+          : Number(input.value);
+    return next;
+  };
+  if (key === "dim" || key === "blur")
+    input.oninput = () => {
+      state = validate(update());
+      renderWallpaper();
+    };
+  input.onchange = () => commit(update());
+}
 function target(a) {
   if (state.openInNewTab) {
     a.target = "_blank";
@@ -137,6 +261,7 @@ function render() {
     state.showCollections;
   $("engine-label").textContent = engines[state.engine].name;
   tick();
+  renderWallpaper();
   const favorites = document.createDocumentFragment();
   for (const link of state.favorites) {
     const a = target(el("a", "favorite"));
@@ -211,7 +336,7 @@ function render() {
 }
 function showTab(name) {
   activeTab = name;
-  for (const key of ["general", "links", "backup"]) {
+  for (const key of tabs) {
     const selected = key === name;
     const tab = $("tab-" + key);
     tab.setAttribute("aria-selected", String(selected));
@@ -230,6 +355,7 @@ function renderSettings() {
     if (input.type === "checkbox") input.checked = state[key];
     else input.value = state[key];
   }
+  renderWallpaper();
   renderEditor();
 }
 function actionButton(label, glyph, action, disabled = false) {
@@ -468,12 +594,12 @@ $("help").onclick = () => $("help-dialog").showModal();
 for (const b of document.querySelectorAll("[data-tab]")) {
   b.onclick = () => showTab(b.dataset.tab);
   b.onkeydown = (event) => {
-    const keys = ["general", "links", "backup"];
+    const keys = tabs;
     let i = keys.indexOf(activeTab);
-    if (event.key === "ArrowRight") i = (i + 1) % 3;
-    else if (event.key === "ArrowLeft") i = (i + 2) % 3;
+    if (event.key === "ArrowRight") i = (i + 1) % keys.length;
+    else if (event.key === "ArrowLeft") i = (i + keys.length - 1) % keys.length;
     else if (event.key === "Home") i = 0;
-    else if (event.key === "End") i = 2;
+    else if (event.key === "End") i = keys.length - 1;
     else return;
     event.preventDefault();
     showTab(keys[i]);
@@ -499,23 +625,34 @@ document.addEventListener("keydown", (event) => {
     $("search").focus();
   }
 });
-$("export").onclick = () => {
-  const blob = new Blob([JSON.stringify(state, null, 2) + "\n"], {
-    type: "application/json",
-  });
-  const url = URL.createObjectURL(blob);
-  const a = el("a");
-  a.href = url;
-  a.download =
-    "spawnpoint-backup-" + new Date().toISOString().slice(0, 10) + ".json";
-  document.body.append(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  toast("Backup exported.");
+$("export").onclick = async () => {
+  $("export").disabled = true;
+  try {
+    const snapshot = clone(state);
+    const asset = await exportWallpaper(wallpaperAsset);
+    const blob = new Blob(
+      [JSON.stringify({ ...snapshot, wallpaperAsset: asset }, null, 2) + "\n"],
+      { type: "application/json" },
+    );
+    const url = URL.createObjectURL(blob);
+    const a = el("a");
+    a.href = url;
+    a.download =
+      "spawnpoint-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast("Backup exported.");
+  } catch (error) {
+    toast(error.message);
+  } finally {
+    $("export").disabled = false;
+  }
 };
 function clearImport() {
   pendingImport = null;
+  pendingImportAsset = undefined;
   $("import").value = "";
   $("import-review").hidden = true;
 }
@@ -525,13 +662,19 @@ $("import").onchange = async (event) => {
   $("import-error").textContent = "";
   if (!file) return;
   try {
-    if (file.size > 1024 * 1024)
+    if (file.size > 4 * 1024 * 1024)
       throw new Error(
-        "Backup is too large. Choose a JSON file smaller than 1 MB.",
+        "Backup is too large. Choose a JSON file smaller than 4 MB.",
       );
-    pendingImport = validate(JSON.parse(await file.text()));
+    const raw = JSON.parse(await file.text());
+    const settings = validate(raw);
+    if (Object.hasOwn(raw, "wallpaperAsset")) {
+      const image = importWallpaper(raw.wallpaperAsset);
+      pendingImportAsset = image ? await prepareWallpaper(image) : null;
+    }
+    pendingImport = settings;
     $("import-description").textContent =
-      `Replace your settings with ${pendingImport.favorites.length} shortcuts and ${pendingImport.groups.length} collections for ${pendingImport.name || "you"}?`;
+      `Replace your settings with ${pendingImport.favorites.length} shortcuts and ${pendingImport.groups.length} collections for ${pendingImport.name || "you"}?${pendingImportAsset ? " The wallpaper is included." : ""}`;
     $("import-review").hidden = false;
   } catch (error) {
     $("import-error").textContent =
@@ -540,31 +683,48 @@ $("import").onchange = async (event) => {
         : error.message;
   }
 };
-$("confirm-import").onclick = () => {
+$("confirm-import").onclick = async () => {
   if (!pendingImport) return;
-  const next = pendingImport;
-  if (commit(next, { editor: true })) {
-    clearImport();
-    renderSettings();
-    toast("Settings restored.");
+  $("confirm-import").disabled = true;
+  try {
+    if (pendingImportAsset !== undefined)
+      await saveWallpaperAsset(pendingImportAsset);
+    if (commit(pendingImport, { editor: true })) {
+      clearImport();
+      renderSettings();
+      toast("Settings restored.");
+    }
+  } catch (error) {
+    $("import-error").textContent = error.message;
+  } finally {
+    $("confirm-import").disabled = false;
   }
 };
 $("cancel-import").onclick = clearImport;
-$("reset").onclick = () => {
+$("reset").onclick = async () => {
   if (
     !confirm(
       "Reset all Spawnpoint settings? Export a backup first if you want to keep your changes.",
     )
   )
     return;
-  commit(fresh(), { editor: true });
-  renderSettings();
-  toast("Original settings restored.");
+  try {
+    if (wallpaperAsset) await saveWallpaperAsset(null);
+    commit(fresh(), { editor: true });
+    renderSettings();
+    toast("Original settings restored.");
+  } catch (error) {
+    toast(error.message);
+  }
 };
 media.addEventListener("change", () => {
   if (state.theme === "system") render();
 });
 window.addEventListener("storage", (event) => {
+  if (event.key === WALLPAPER_SIGNAL) {
+    refreshWallpaper();
+    return;
+  }
   if (event.key !== STORAGE_KEY) return;
   const next = load(storage);
   if (next.warning) {
@@ -578,10 +738,14 @@ window.addEventListener("storage", (event) => {
   toast("Settings updated in another tab.");
 });
 document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) tick();
+  if (!document.hidden) {
+    tick();
+    refreshWallpaper();
+  }
 });
 window.addEventListener("pageshow", tick);
 applyIcons();
 render();
+refreshWallpaper();
 setInterval(tick, 1000);
 if (loaded.warning) toast(loaded.warning);
